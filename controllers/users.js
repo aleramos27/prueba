@@ -4,14 +4,17 @@ let users = [];
 
 export const getUsers = (req, res) => {
     console.log(`Users in the database: ${users}`);
-
+    // ENVIANDO EL JSON DE RESPUESTA
     res.send(users);
 }
 
-export const createUser = (req, res) => {   
+export const createUser = (req, res) => {  
+    // RECIBE LOS PARAMETROS PARA EL USUARIO NUEVO
     const user = req.body;
-
+    // AGREGA NUEVO USUARIO EN ARRAY users
     users.push({...user, id: uuid()});
+    // ENVIANDO EL JSON DE RESPUESTA
+    res.send(users);
     
     console.log(`User [${user.username}] added to the database.`);
 };
