@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a6aa6d88-a20a-430a-a1c3-241816df1966",
+		"_postman_id": "fca90a2b-7c66-4230-9eb8-892040e8b937",
 		"name": "Transbank Test",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -15,12 +15,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n        \"firstMame\": \"Gabriel\",\n        \"lastName\": \"Fuentes\",\n        \"age\": 11\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
+					"raw": "{\n        \"firstMame\": \"Gabriel\",\n        \"lastName\": \"Fuentes\",\n        \"age\": 11\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/people/",
@@ -39,17 +34,54 @@
 		},
 		{
 			"name": "http://localhost:5000/people/",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "143ec41c-4e02-41e2-b3e7-9522f0624d9c",
+						"exec": [
+							"let uuid = require ('uuid')",
+							"let myUUID = uuid.v4()",
+							"console.log(myUUID)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "497b832c-214c-4fdf-b3cb-269c72df3af6",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Validate users\", function() {",
+							"    var getdata= pm.response.json();",
+							"    pm.expect(getdata.firstName).to.eql(pm.iterationData.get(\"firstName\"));",
+							"    pm.expect(getdata.lastName).to.eql(pm.iterationData.get(\"lastName\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n        \"firstMame\": \"Gabriel\",\n        \"lastName\": \"Fuentes\",\n        \"age\": 11\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
+					"raw": "{\n        \"firstName\": \"{{firstName}}\",\n        \"lastName\": \"{{lastName}}\",\n        \"age\": \"{{age}}\"\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5000/people/",
@@ -67,5 +99,40 @@
 			"response": []
 		}
 	],
-	"protocolProfileBehavior": {}
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "a80f3c51-9ceb-4af1-9536-e655889fa19c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "3207505c-dc4b-4be4-bbe1-4a8cb2f2f703",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "39c42e33-8d53-46e0-b848-52cd8ee5eb36",
+			"key": "firstName",
+			"value": "{{firstName}}",
+			"type": "string"
+		},
+		{
+			"id": "c5a8c6e1-d251-4a4f-8e39-fbe06ec9251f",
+			"key": "lastName",
+			"value": "{{lastName}}",
+			"type": "string"
+		}
+	]
 }
