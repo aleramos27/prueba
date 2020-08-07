@@ -123,15 +123,21 @@
 	],
 	"variable": [
 		{
-			"id": "39c42e33-8d53-46e0-b848-52cd8ee5eb36",
+			"id": "ea3e682c-57b1-43fb-a4bd-9ca481fbaf69",
 			"key": "firstName",
 			"value": "{{firstName}}",
 			"type": "string"
 		},
 		{
-			"id": "c5a8c6e1-d251-4a4f-8e39-fbe06ec9251f",
+			"id": "56de7327-3822-4711-a4fe-7ee6cb306312",
 			"key": "lastName",
 			"value": "{{lastName}}",
+			"type": "string"
+		},
+		{
+			"id": "a0996dcd-23bb-4181-8357-cf82bd93c2d6",
+			"key": "age",
+			"value": "{{age}}",
 			"type": "string"
 		}
 	]
