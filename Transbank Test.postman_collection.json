@@ -1,12 +1,51 @@
 {
 	"info": {
-		"_postman_id": "fca90a2b-7c66-4230-9eb8-892040e8b937",
+		"_postman_id": "cd3fd3c6-6007-4a28-b580-0ff6d86f8b2e",
 		"name": "Transbank Test",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
 			"name": "http://localhost:5000/people/",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fc902d7c-d3fb-486c-917f-fea2b15378cc",
+						"exec": [
+							" const response = pm.response.json();\r",
+							"\r",
+							" console.log(response.firstName);\r",
+							"\r",
+							" pm.test(\"users is correct\",()=> {\r",
+							"     pm.expect(response.firstName).to.eql(pm.iterationData.get(\"firstName\"));\r",
+							"     pm.expect(response.lastName).to.eql(pm.iterationData.get(\"lastName\"));\r",
+							"     pm.expect(response.age).to.eql(pm.iterationData.get(\"age\"));\r",
+							"\r",
+							" });"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4d8b37e9-4e96-4af3-9114-b8607ad9047e",
+						"exec": [
+							"let queryParams = '';\r",
+							"const users= {\r",
+							"    firstName: \"Alejandro\",\r",
+							"    lastName: \"Ramos\",\r",
+							"    age: 33\r",
+							"};\r",
+							"\r",
+							"queryParams = '?'+ Object.keys(users).map(key => '${Key}=${users[key]}').join('&');\r",
+							"pm.globals.set(\"queryParams\", queryParams);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -15,10 +54,10 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n        \"firstMame\": \"Gabriel\",\n        \"lastName\": \"Fuentes\",\n        \"age\": 11\n}"
+					"raw": "{\n        \"firstMame\": \"Alejandro\",\n        \"lastName\": \"Ramos\",\n        \"age\": 33\n}"
 				},
 				"url": {
-					"raw": "http://localhost:5000/people/",
+					"raw": "http://localhost:5000/people/{{queryParams}}",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -26,7 +65,7 @@
 					"port": "5000",
 					"path": [
 						"people",
-						""
+						"{{queryParams}}"
 					]
 				}
 			},
@@ -38,11 +77,12 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "143ec41c-4e02-41e2-b3e7-9522f0624d9c",
+						"id": "16eb2d6d-1b23-4d04-a823-0bf64d2c22f0",
 						"exec": [
 							"let uuid = require ('uuid')",
 							"let myUUID = uuid.v4()",
-							"console.log(myUUID)"
+							"console.log(myUUID)",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -50,25 +90,76 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "497b832c-214c-4fdf-b3cb-269c72df3af6",
+						"id": "57cd70c6-e994-4616-bd0b-150539c1ec6e",
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {",
+							"pm.test(\"Status code is 200\", () => {",
 							"    pm.response.to.have.status(200);",
 							"});",
-							"pm.test(\"Response time is less than 200ms\", function () {",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
 							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"",
 							"});",
 							"",
-							"pm.test(\"Validate users\", function() {",
-							"    var getdata= pm.response.json();",
-							"    pm.expect(getdata.firstName).to.eql(pm.iterationData.get(\"firstName\"));",
-							"    pm.expect(getdata.lastName).to.eql(pm.iterationData.get(\"lastName\"));",
-							"});"
+							"//validar data",
+							"pm.test(\"validate user\", function() {",
+							"const response = pm.response.json();",
+							"     pm.expect(response.firstName).to.eql(pm.iterationData.get(\"firstName\"));",
+							"     pm.expect(response.lastName).to.eql(pm.iterationData.get(\"lastName\"));",
+							"     pm.expect(response.age).to.eql(pm.iterationData.get(\"age\"));",
+							"});",
+							"",
+							"//valores null",
+							"pm.test(\"your-value is not null\", function () {",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.expect(jsonData.firstName).not.eql(null);",
+							"});",
+							"",
+							"",
+							"//creando schema",
+							"var  response = pm.response.json();",
+							"var schema = {",
+							"    \"users\":{",
+							"        \"type\": \"object\",",
+							"        \"Properties\":",
+							"        {",
+							"            \"firstName\": {",
+							"                \"type\": \"string\",",
+							"                \"minimum\":6,",
+							"                \"maximun\":20",
+							"                },",
+							"            \"lastName\": {",
+							"                \"type\": \"string\",",
+							"                \"minimum\":6,",
+							"                \"maximun\":20",
+							"                },",
+							"             ",
+							"            \"age\": {",
+							"                \"type\": \"integer\",",
+							"                 \"minLength\": 18,",
+							"                 \"maxlength\":100}",
+							"        }",
+							"    }",
+							"};",
+							"",
+							"//validando esquema",
+							"pm.test(\"schema is valid\", function() {",
+							"    pm.expect(tv4.validate(response, schema)).to.be.true;",
+							"});",
+							"",
+							"",
+							"",
+							"",
+							""
 						],
 						"type": "text/javascript"
 					}
 				}
 			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
 			"request": {
 				"method": "POST",
 				"header": [
@@ -84,15 +175,9 @@
 					"raw": "{\n        \"firstName\": \"{{firstName}}\",\n        \"lastName\": \"{{lastName}}\",\n        \"age\": \"{{age}}\"\n}"
 				},
 				"url": {
-					"raw": "http://localhost:5000/people/",
-					"protocol": "http",
+					"raw": "{{url}}",
 					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"people",
-						""
+						"{{url}}"
 					]
 				}
 			},
@@ -103,7 +188,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "a80f3c51-9ceb-4af1-9536-e655889fa19c",
+				"id": "3c6f66e8-8196-47ae-80b3-c102eada1b67",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -113,7 +198,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "3207505c-dc4b-4be4-bbe1-4a8cb2f2f703",
+				"id": "4b80d863-17a7-4afc-9c0d-83258bb0aeae",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -123,22 +208,20 @@
 	],
 	"variable": [
 		{
-			"id": "ea3e682c-57b1-43fb-a4bd-9ca481fbaf69",
-			"key": "firstName",
-			"value": "{{firstName}}",
-			"type": "string"
-		},
-		{
-			"id": "56de7327-3822-4711-a4fe-7ee6cb306312",
+			"id": "dd6d5057-a4af-47b8-81ad-fa43a3bb027d",
 			"key": "lastName",
-			"value": "{{lastName}}",
-			"type": "string"
+			"value": "{{lastName}}"
 		},
 		{
-			"id": "a0996dcd-23bb-4181-8357-cf82bd93c2d6",
+			"id": "f5a4577d-8c5e-44cd-a8bf-5e9c3498cc44",
+			"key": "firstName",
+			"value": "{{firstName}}"
+		},
+		{
+			"id": "1ce02ac7-9c0e-4814-9d45-88afb0f5d020",
 			"key": "age",
-			"value": "{{age}}",
-			"type": "string"
+			"value": "{{age}}"
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }
